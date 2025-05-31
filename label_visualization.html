@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DETECTION SYSTEM // SEQUENCE 02</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="main-container">
+        <div class="visualization-container">
+            <div class="visualization-header">OBJECT TRACKING SYSTEM</div>
+            <div class="visualization-grid corner-brackets top-left corner-brackets top-right corner-brackets bottom-left corner-brackets bottom-right">
+                <canvas id="visualCanvas"></canvas>
+                <div class="scan-line"></div>
+            </div>
+        </div>
+        
+        <div class="data-panel">
+            <div class="panel-header">DETECTION DATA</div>
+            <div id="dataPanel"></div>
+        </div>
+    </div>
+    
+    <div class="status-bar">
+        <div class="status-indicator active">SYSTEM ACTIVE</div>
+        <div class="status-indicator">TRACKING: ON</div>
+        <div class="status-indicator">FRAME RATE: 10 FPS</div>
+    </div>
+
+    <script type="module" src="visualization.js"></script>
+</body>
+</html> 

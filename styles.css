@@ -1,0 +1,332 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #000000;
+    color: #ffffff;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-size: 12px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 网格背景 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.main-container {
+    display: flex;
+    height: 100vh;
+    position: relative;
+    z-index: 2;
+}
+
+.visualization-container {
+    flex: 1;
+    padding: 20px;
+    border-right: 2px solid #ffffff;
+    position: relative;
+}
+
+.visualization-header {
+    position: absolute;
+    top: 10px;
+    left: 20px;
+    z-index: 10;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.visualization-grid {
+    position: absolute;
+    top: 40px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    border: 1px solid #ffffff;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
+}
+
+.corner-brackets {
+    position: absolute;
+}
+
+.corner-brackets::before,
+.corner-brackets::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ffffff;
+}
+
+.corner-brackets.top-left::before {
+    top: -2px;
+    left: -2px;
+    border-right: none;
+    border-bottom: none;
+}
+
+.corner-brackets.top-right::before {
+    top: -2px;
+    right: -2px;
+    border-left: none;
+    border-bottom: none;
+}
+
+.corner-brackets.bottom-left::before {
+    bottom: -2px;
+    left: -2px;
+    border-right: none;
+    border-top: none;
+}
+
+.corner-brackets.bottom-right::before {
+    bottom: -2px;
+    right: -2px;
+    border-left: none;
+    border-top: none;
+}
+
+#visualCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: relative;
+    z-index: 10;
+}
+
+.data-panel {
+    width: 350px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    border-left: 2px solid #ffffff;
+    overflow-y: auto;
+    position: relative;
+}
+
+.data-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 10px 10px;
+    pointer-events: none;
+}
+
+.panel-header {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ffffff;
+    position: relative;
+    z-index: 10;
+}
+
+.frame-info {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #ffffff;
+    padding: 15px;
+    margin-bottom: 20px;
+    font-weight: 400;
+    line-height: 1.6;
+    position: relative;
+    z-index: 10;
+}
+
+.frame-info::before {
+    content: '>>>';
+    position: absolute;
+    left: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ffffff;
+    font-weight: 700;
+}
+
+.data-item {
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid #444444;
+    border-left: 3px solid #ffffff;
+    padding: 12px;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 10;
+    cursor: crosshair;
+}
+
+.data-item:hover,
+.data-item.highlighted {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #ffffff;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+    transform: translateX(5px);
+}
+
+.data-item strong {
+    color: #ffffff;
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.data-item-line {
+    margin: 3px 0;
+    color: #cccccc;
+}
+
+.confidence {
+    color: #ffff00;
+    font-weight: 700;
+}
+
+.status-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: #000;
+    border-top: 1px solid #ffffff;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    font-weight: 700;
+    color: #ffffff;
+    z-index: 20;
+}
+
+.status-indicator {
+    margin-right: 20px;
+}
+
+.status-indicator.active::before {
+    content: '●';
+    color: #ffffff;
+    margin-right: 5px;
+    animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0.3; }
+}
+
+.scan-line {
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #ffffff 50%, transparent 100%);
+    animation: scan 3s linear infinite;
+    z-index: 5;
+}
+
+@keyframes scan {
+    0% { top: 0%; opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+/* 滚动条样式 */
+.data-panel::-webkit-scrollbar {
+    width: 8px;
+}
+
+.data-panel::-webkit-scrollbar-track {
+    background: #000;
+    border: 1px solid #ffffff;
+}
+
+.data-panel::-webkit-scrollbar-thumb {
+    background: #ffffff;
+    border-radius: 0;
+}
+
+.data-panel::-webkit-scrollbar-thumb:hover {
+    background: #cccccc;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+    .data-panel {
+        width: 300px;
+    }
+    
+    .visualization-header {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+    }
+    
+    .visualization-container {
+        height: 60vh;
+        border-right: none;
+        border-bottom: 2px solid #ffffff;
+    }
+    
+    .data-panel {
+        width: 100%;
+        height: 40vh;
+        border-left: none;
+        border-top: 2px solid #ffffff;
+    }
+}
+
+/* 可访问性改进 */
+@media (prefers-reduced-motion: reduce) {
+    .scan-line,
+    .status-indicator.active::before,
+    .data-item {
+        animation: none;
+    }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+    body {
+        background: #000;
+    }
+    
+    .data-panel {
+        background: rgba(0, 0, 0, 0.95);
+    }
+    
+    .data-item {
+        background: rgba(30, 30, 30, 0.9);
+    }
+} 
