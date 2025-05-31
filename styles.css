@@ -117,12 +117,16 @@ body::before {
 }
 
 .data-panel {
-    width: 350px;
-    padding: 20px;
+    width: 700px;
+    padding: 0;
     background: rgba(0, 0, 0, 0.8);
     border-left: 2px solid #ffffff;
-    overflow-y: auto;
+    overflow: hidden;
     position: relative;
+    height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
 
 .data-panel::before {
@@ -173,6 +177,154 @@ body::before {
     font-weight: 700;
 }
 
+/* 新增：系统信息区域 */
+.system-info {
+    margin-bottom: 15px;
+}
+
+/* 新增：双栏布局 */
+.data-columns {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.data-column {
+    flex: 1;
+    min-width: 0; /* 防止flex溢出 */
+    height: 100%; /* 填满父容器高度 */
+    overflow: hidden; /* 防止溢出 */
+}
+
+.left-column {
+    margin-right: 8px; /* 增加左右栏间距 */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+.right-column {
+    margin-left: 8px; /* 增加左右栏间距 */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* 新增：图片槽位样式优化，更好利用空间 */
+.image-slot {
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid #444444;
+    border-left: 3px solid #ffffff;
+    padding: 3px; /* 减小padding以更好利用空间 */
+    margin-bottom: 6px; /* 减小间距 */
+    position: relative;
+    text-align: center;
+    transition: all 0.3s ease;
+    z-index: 5;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box; /* 确保padding计算在内 */
+}
+
+.image-slot:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #ffffff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+    transform: translateX(2px);
+}
+
+.image-slot.small {
+    height: 100px; /* 小图片高度变化 */
+    min-height: 100px;
+    max-height: 100px;
+    padding: 3px;
+    border-left-width: 2px;
+}
+
+.image-slot.medium {
+    height: 140px; /* 中图片高度 */
+    min-height: 140px;
+    max-height: 140px;
+    padding: 4px;
+}
+
+.image-slot.large {
+    height: 180px; /* 大图片高度 */
+    min-height: 180px;
+    max-height: 180px;
+    padding: 5px;
+    border-left-width: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.slot-image {
+    width: 100%;
+    flex: 1; /* 图片占用容器的所有可用空间 */
+    opacity: 0.8;
+    transition: all 0.3s ease;
+    border-radius: 2px;
+    object-fit: contain; /* 图片完整显示，保持比例不裁剪 */
+    object-position: center; /* 图片居中对齐 */
+    background: rgba(20, 20, 20, 0.5); /* 添加背景色填充空白区域 */
+}
+
+.image-slot:hover .slot-image {
+    opacity: 1;
+    transform: scale(1.02);
+}
+
+.image-slot.small .slot-image {
+    height: 100%;
+    object-fit: contain; /* 确保小图片也完整显示 */
+    object-position: center;
+}
+
+.image-slot.medium .slot-image {
+    height: 100%;
+    object-fit: contain; /* 确保中图片也完整显示 */
+    object-position: center;
+}
+
+.image-slot.large .slot-image {
+    height: 100%;
+    object-fit: contain; /* 确保大图片也完整显示 */
+    object-position: center;
+}
+
+.image-label {
+    position: absolute;
+    bottom: 2px; /* 减小底部距离 */
+    right: 4px; /* 减小右侧距离 */
+    font-size: 7px; /* 减小字体 */
+    color: #cccccc;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px; /* 减小字母间距 */
+    background: rgba(0, 0, 0, 0.9); /* 增加背景透明度 */
+    padding: 1px 3px; /* 减小padding */
+    border-radius: 1px;
+    z-index: 10;
+    opacity: 0.8; /* 增加透明度减少遮挡 */
+}
+
+.image-slot.small .image-label {
+    font-size: 6px; /* 更小字体 */
+    padding: 1px 2px;
+    bottom: 1px;
+    right: 2px;
+}
+
+.image-slot.large .image-label {
+    font-size: 8px;
+    padding: 2px 4px;
+    letter-spacing: 1px;
+    bottom: 3px;
+    right: 5px;
+}
+
 .data-item {
     background: rgba(20, 20, 20, 0.8);
     border: 1px solid #444444;
@@ -181,7 +333,7 @@ body::before {
     margin-bottom: 12px;
     transition: all 0.3s ease;
     position: relative;
-    z-index: 10;
+    z-index: 5;
     cursor: crosshair;
 }
 
@@ -280,11 +432,72 @@ body::before {
 /* 响应式设计 */
 @media (max-width: 1200px) {
     .data-panel {
-        width: 300px;
+        width: 600px;
+    }
+    
+    .data-panel-content {
+        height: calc(100vh - 220px); /* 调整中等屏幕的高度 */
+    }
+    
+    .video-container {
+        aspect-ratio: 16 / 9; /* 保持16:9比例 */
     }
     
     .visualization-header {
         font-size: 12px;
+    }
+    
+    /* 在中等屏幕上调整双栏布局 */
+    .data-columns {
+        gap: 8px;
+    }
+    
+    .image-slot.large {
+        min-height: 130px;
+    }
+    
+    .image-slot.medium {
+        min-height: 110px;
+    }
+    
+    .image-slot.small {
+        min-height: 90px;
+    }
+}
+
+@media (max-width: 900px) {
+    .data-panel {
+        width: 500px;
+    }
+    
+    .data-panel-content {
+        height: calc(100vh - 200px); /* 调整小屏幕的高度 */
+    }
+    
+    .video-container {
+        aspect-ratio: 16 / 9; /* 保持16:9比例 */
+        padding: 8px 15px;
+    }
+    
+    .visualization-header {
+        font-size: 12px;
+    }
+    
+    /* 在小屏幕上调整双栏布局 */
+    .data-columns {
+        gap: 8px;
+    }
+    
+    .image-slot.large {
+        min-height: 130px;
+    }
+    
+    .image-slot.medium {
+        min-height: 110px;
+    }
+    
+    .image-slot.small {
+        min-height: 90px;
     }
 }
 
@@ -294,16 +507,89 @@ body::before {
     }
     
     .visualization-container {
-        height: 60vh;
+        height: 50%;
         border-right: none;
         border-bottom: 2px solid #ffffff;
     }
     
     .data-panel {
         width: 100%;
-        height: 40vh;
+        height: 50%;
         border-left: none;
         border-top: 2px solid #ffffff;
+    }
+    
+    .data-panel-content {
+        height: calc(50vh - 150px); /* 移动设备上的高度 */
+    }
+    
+    .video-container {
+        aspect-ratio: 16 / 9; /* 保持16:9比例 */
+        padding: 8px 15px;
+    }
+    
+    .video-header {
+        font-size: 10px;
+        padding: 6px 15px;
+    }
+    
+    .video-container::before {
+        left: 10px;
+        right: 10px;
+    }
+    
+    .video-container::after {
+        left: 20px;
+    }
+    
+    /* 在小屏幕上减小图片尺寸以适应更小的数据区域 */
+    .image-slot.small {
+        height: 50px;
+        min-height: 50px;
+        max-height: 50px;
+    }
+    
+    .image-slot.medium {
+        height: 70px;
+        min-height: 70px;
+        max-height: 70px;
+    }
+    
+    .image-slot.large {
+        height: 90px;
+        min-height: 90px;
+        max-height: 90px;
+    }
+    
+    /* 在小屏幕上改为单栏布局 */
+    .data-columns {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .left-column {
+        column-count: 1; /* 小屏幕单列 */
+    }
+    
+    .image-slot {
+        margin-bottom: 8px;
+    }
+    
+    .image-slot.main-image {
+        min-height: 100px; /* 小屏幕最小高度 */
+        margin-bottom: 10px;
+    }
+    
+    .image-slot.main-image .slot-image {
+        max-height: 200px; /* 小屏幕最大高度限制 */
+    }
+    
+    .left-column {
+        margin-right: 5px;
+    }
+    
+    .right-column {
+        margin-left: 5px;
     }
 }
 
@@ -329,4 +615,425 @@ body::before {
     .data-item {
         background: rgba(30, 30, 30, 0.9);
     }
+}
+
+/* 新增：紧凑布局样式 */
+.system-info.compact {
+    margin-bottom: 8px;
+    flex-shrink: 0; /* 防止压缩 */
+}
+
+.frame-info.compact {
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    font-size: 11px;
+    line-height: 1.3;
+}
+
+.data-columns.fixed-height {
+    height: 100%; /* 填满父容器 */
+    overflow: hidden; /* 禁用滚动 */
+}
+
+/* 数据卡片紧凑样式 - 更好地填充空间 */
+.data-item.compact {
+    padding: 5px; /* 稍微减小padding */
+    margin-bottom: 3px; /* 更紧密的间距 */
+    font-size: 10px;
+    flex-shrink: 0; /* 防止压缩 */
+    max-height: 70px; /* 稍微减小最大高度 */
+    overflow: hidden; /* 防止文本溢出 */
+    line-height: 1.2; /* 更紧凑的行高 */
+}
+
+.data-item.compact strong {
+    font-size: 11px; /* 稍微减小标题字体 */
+    margin-bottom: 2px;
+}
+
+.data-item.compact .data-item-line {
+    margin: 1px 0; /* 减小行间距 */
+    font-size: 9px;
+}
+
+.data-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2px;
+    margin-top: 3px;
+}
+
+.coord-pair,
+.status-pair {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+}
+
+.coord-pair span,
+.status-pair span {
+    flex: 1;
+    text-align: left;
+}
+
+.coord-pair span:last-child,
+.status-pair span:last-child {
+    text-align: right;
+}
+
+.data-item.summary {
+    background: rgba(255, 255, 255, 0.08); /* 稍微亮一些 */
+    border-left-color: #ffaa00;
+    margin-bottom: 3px;
+}
+
+/* 调整图片槽位以适应固定高度 */
+.data-columns.fixed-height .image-slot {
+    margin-bottom: 8px;
+    padding: 6px;
+    break-inside: avoid; /* 添加瀑布流支持 */
+}
+
+.data-columns.fixed-height .image-slot.small {
+    /* 移除，使用新的个性化高度 */
+}
+
+.data-columns.fixed-height .image-slot.medium {
+    /* 移除，使用新的个性化高度 */
+}
+
+.data-columns.fixed-height .image-slot.large {
+    /* 移除，使用新的个性化高度 */
+}
+
+.fallback-svg {
+    width: 100%;
+    height: auto;
+}
+
+/* 新增：视频区域样式 */
+.video-section {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    border-top: 2px solid #ffffff;
+    border-radius: 0;
+    z-index: 10;
+    box-sizing: border-box;
+    flex-shrink: 0; /* 防止被压缩 */
+}
+
+.video-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid #ffffff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.video-title {
+    color: #ffffff;
+}
+
+.video-status {
+    color: #00ff41;
+    font-weight: 700;
+    animation: blink 2s infinite;
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    padding: 10px 20px;
+    box-sizing: border-box;
+    /* 使用16:9比例，不限制高度 */
+    aspect-ratio: 16 / 9;
+}
+
+.video-container::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 15px;
+    right: 15px;
+    bottom: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* 视频内框线装饰 */
+.video-container::after {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 25px;
+    width: 20px;
+    height: 20px;
+    border-top: 2px solid #ffffff;
+    border-left: 2px solid #ffffff;
+    pointer-events: none;
+    z-index: 2;
+}
+
+#sequence-video {
+    width: 100%;
+    height: 100%;
+    background: #000;
+    border: 1px solid #444444;
+    position: relative;
+    z-index: 0;
+    object-fit: contain; /* 保持视频比例，不裁剪 */
+}
+
+/* 视频控制条样式 */
+#sequence-video::-webkit-media-controls-panel {
+    background: rgba(0, 0, 0, 0.8);
+    border-top: 1px solid #ffffff;
+}
+
+#sequence-video::-webkit-media-controls-play-button,
+#sequence-video::-webkit-media-controls-mute-button {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid #ffffff;
+    border-radius: 0;
+}
+
+#sequence-video::-webkit-media-controls-timeline {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid #ffffff;
+}
+
+.video-fallback {
+    color: #ffffff;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 20px;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid #ff4444;
+    margin: 10px;
+}
+
+.video-fallback p {
+    margin: 10px 0;
+    color: #ffaa00;
+}
+
+.video-fallback ul {
+    text-align: left;
+    max-width: 300px;
+    margin: 15px auto;
+    color: #cccccc;
+}
+
+.video-fallback li {
+    margin: 5px 0;
+    font-size: 11px;
+}
+
+/* 上方数据区域 */
+.data-panel-content {
+    flex: 1; /* 占用剩余空间 */
+    padding: 15px; /* 减小padding */
+    overflow: hidden; /* 禁用滚动 */
+    min-height: 0; /* 允许flex收缩 */
+}
+
+/* 左列主要布局 - Pinterest瀑布流风格，充分利用空间 */
+.left-column {
+    margin-right: 8px; /* 增加左右栏间距 */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+}
+
+/* 移除旋转效果，改为瀑布流错落，减小间距 */
+.image-slot.offset-left,
+.image-slot.offset-right,
+.image-slot.offset-center {
+    display: none; /* 隐藏不使用的样式 */
+}
+
+/* 左列图片的瀑布流布局 */
+#left-img-1 {
+    /* 不再使用 */
+}
+
+#left-img-2 {
+    /* 不再使用 */
+}
+
+#left-img-3 {
+    /* 不再使用 */
+}
+
+#left-img-4 {
+    /* 不再使用 */
+}
+
+#left-img-5 {
+    /* 不再使用 */
+}
+
+/* 右列数据卡片样式优化 */
+.right-column {
+    margin-left: 8px; /* 增加左右栏间距 */
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* 移除之前的错落效果，改为简洁的右对齐 */
+#right-data-1, #right-data-2, #right-data-3, 
+#right-data-4, #right-data-5, #right-data-6, #right-data-extra {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+/* 为左右列的具体容器添加flex属性 */
+#left-content, #left-data-1, #left-data-2, #left-data-extra {
+    flex-shrink: 0; /* 防止压缩 */
+}
+
+#right-data-1, #right-data-2, #right-data-3 {
+    flex-shrink: 0; /* 防止压缩 */
+}
+
+/* 为不支持aspect-ratio的浏览器提供备用方案 */
+@supports not (aspect-ratio: 16 / 9) {
+    .video-container {
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 56.25%; /* 16:9比例 = 9/16 * 100% = 56.25% */
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-top: 10px;
+    }
+    
+    #sequence-video {
+        position: absolute;
+        top: 10px;
+        left: 20px;
+        right: 20px;
+        bottom: 10px;
+        width: calc(100% - 40px);
+        height: calc(100% - 20px);
+    }
+}
+
+/* 主图片样式 - 占据左栏全宽，高度自适应 */
+.image-slot.main-image {
+    background: rgba(20, 20, 20, 0.8);
+    border: 1px solid #444444;
+    border-left: 4px solid #ffffff; /* 更粗的左边框突出主图片 */
+    padding: 8px; /* 增加padding */
+    margin-bottom: 15px; /* 与下方数据卡片的距离 */
+    position: relative;
+    text-align: center;
+    transition: all 0.3s ease;
+    z-index: 5;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%; /* 占据左栏全宽 */
+    /* 移除固定高度，让容器自适应图片内容 */
+    min-height: 120px; /* 最小高度确保有基本显示区域 */
+}
+
+.image-slot.main-image:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: #ffffff;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px); /* 改为向上移动 */
+}
+
+.image-slot.main-image .slot-image {
+    width: 100%;
+    height: auto; /* 让图片高度自适应 */
+    opacity: 0.9; /* 主图片更明显 */
+    transition: all 0.3s ease;
+    border-radius: 2px;
+    object-fit: contain; /* 保持完整显示 */
+    object-position: center;
+    background: rgba(20, 20, 20, 0.5);
+    max-height: 300px; /* 设置最大高度限制，避免图片过大 */
+}
+
+.image-slot.main-image:hover .slot-image {
+    opacity: 1;
+    transform: scale(1.02); /* 轻微放大 */
+}
+
+.image-slot.main-image .image-label {
+    font-size: 10px;
+    padding: 3px 6px;
+    letter-spacing: 1.2px;
+    bottom: 6px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.9);
+    color: #00ff41; /* 主图片标签用绿色 */
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+/* 左栏数据卡片样式 - 紧凑填充剩余空间 */
+#left-data-1, #left-data-2, #left-data-3, #left-data-4, #left-data-5 {
+    flex-shrink: 0;
+    margin-bottom: 4px; /* 紧密排列 */
+}
+
+/* 右栏数据卡片样式 - 充分利用空间 */
+#right-data-1, #right-data-2, #right-data-3, #right-data-4, #right-data-5,
+#right-data-6, #right-data-7, #right-data-8 {
+    flex-shrink: 0;
+    margin-bottom: 4px; /* 紧密排列 */
+}
+
+/* 确保数据卡片填充剩余空间的优化 */
+.data-columns.fixed-height .left-column {
+    height: 100%;
+    overflow: hidden;
+}
+
+.data-columns.fixed-height .right-column {
+    height: 100%;
+    overflow: hidden;
+}
+
+/* 数据卡片容器优化 */
+#left-data-1, #left-data-2, #left-data-3, #left-data-4, #left-data-5,
+#right-data-1, #right-data-2, #right-data-3, #right-data-4, #right-data-5,
+#right-data-6, #right-data-7, #right-data-8, #right-data-extra {
+    width: 100%; /* 确保卡片占满栏宽 */
+}
+
+/* 总结卡片样式 */
+.data-item.summary {
+    background: rgba(255, 255, 255, 0.08); /* 稍微亮一些 */
+    border-left-color: #ffaa00;
+    margin-bottom: 3px;
+}
+
+/* 删除不再使用的旧样式 */
+/* 图片悬停效果 - 不旋转，只放大 */
+.image-slot.offset-left:hover,
+.image-slot.offset-right:hover,
+.image-slot.offset-center:hover {
+    display: none; /* 隐藏不使用的样式 */
 } 
