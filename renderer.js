@@ -5,6 +5,7 @@ class Renderer {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
+        this.animationTime = 0; // 添加动画时间追踪
         this.setupCanvas();
     }
 
@@ -232,14 +233,173 @@ class Renderer {
         this.ctx.fillText(subLabel, canvasCenter[0] + 15, canvasCenter[1] + 8);
     }
 
+    // 绘制红色物体之间的连线
+    drawResourceConnections() {
+        // 获取所有红色物体(RESOURCE, ID=4)
+        const resourceObjects = dataManager.currentObjects.filter(obj => obj[0] === 4);
+        
+        if (resourceObjects.length < 3) return; // 至少需要3个点才能形成外圈
+        
+        // 获取所有红色物体的中心点
+        const centers = resourceObjects.map(obj => {
+            const center = dataManager.getObjectCenter(obj);
+            return {
+                x: center.x,
+                y: center.y,
+                obj: obj
+            };
+        });
+        
+        // 计算凸包来找到最外圈的点
+        const hull = this.convexHull(centers);
+        
+        if (hull.length < 3) return;
+        
+        // 绘制外圈连线
+        for (let i = 0; i < hull.length; i++) {
+            const current = hull[i];
+            const next = hull[(i + 1) % hull.length];
+            
+            const canvasCenter1 = this.transformToCanvas([current.x, current.y]);
+            const canvasCenter2 = this.transformToCanvas([next.x, next.y]);
+            
+            // 使用非常细和半透明的线
+            this.ctx.strokeStyle = 'rgba(255, 68, 68, 0.59)'; // 更加半透明
+            this.ctx.lineWidth = 1; // 细线
+            // this.ctx.setLineDash([3, 3]); // 细虚线
+            
+            this.ctx.beginPath();
+            this.ctx.moveTo(canvasCenter1[0], canvasCenter1[1]);
+            this.ctx.lineTo(canvasCenter2[0], canvasCenter2[1]);
+            this.ctx.stroke();
+        }
+        
+        this.ctx.setLineDash([]);
+    }
+
+    // 计算凸包 (Graham扫描算法的简化版本)
+    convexHull(points) {
+        if (points.length < 3) return points;
+        
+        // 找到最底部的点（y最小），如果有多个则选择x最小的
+        let start = 0;
+        for (let i = 1; i < points.length; i++) {
+            if (points[i].y < points[start].y || 
+                (points[i].y === points[start].y && points[i].x < points[start].x)) {
+                start = i;
+            }
+        }
+        
+        // 将起始点放到第一位
+        [points[0], points[start]] = [points[start], points[0]];
+        
+        // 按照极角排序
+        const startPoint = points[0];
+        const sortedPoints = points.slice(1).sort((a, b) => {
+            const angleA = Math.atan2(a.y - startPoint.y, a.x - startPoint.x);
+            const angleB = Math.atan2(b.y - startPoint.y, b.x - startPoint.x);
+            return angleA - angleB;
+        });
+        
+        // 构建凸包
+        const hull = [startPoint];
+        
+        for (const point of sortedPoints) {
+            // 移除不在凸包上的点
+            while (hull.length > 1 && this.crossProduct(hull[hull.length-2], hull[hull.length-1], point) <= 0) {
+                hull.pop();
+            }
+            hull.push(point);
+        }
+        
+        return hull;
+    }
+
+    // 计算叉积来判断三点的方向
+    crossProduct(o, a, b) {
+        return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+    }
+
+    // 绘制Agent雷达探测圈
+    drawAgentRadarRings() {
+        // 获取所有Agent对象(AGENT_PIONEER, ID=0)
+        const agentObjects = dataManager.currentObjects.filter(obj => obj[0] === 0);
+        
+        agentObjects.forEach((obj, index) => {
+            const center = dataManager.getObjectCenter(obj);
+            const canvasCenter = this.transformToCanvas([center.x, center.y]);
+            
+            // 绘制多层雷达圈
+            const baseRadius = 40;
+            const ringCount = 3;
+            
+            for (let ring = 0; ring < ringCount; ring++) {
+                const ringOffset = ring * 25;
+                const animationOffset = (this.animationTime * 0.002 + ring * 0.8) % (Math.PI * 2);
+                
+                // 雷达圈半径动态变化
+                const radius = baseRadius + ringOffset + Math.sin(animationOffset) * 10;
+                
+                // 透明度随动画变化
+                const alpha = (Math.sin(animationOffset) * 0.3 + 0.4) * (1 - ring * 0.2);
+                
+                // 绘制雷达圈
+                this.ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                this.ctx.lineWidth = 2 - ring * 0.3;
+                this.ctx.setLineDash([4, 4]);
+                
+                this.ctx.beginPath();
+                this.ctx.arc(canvasCenter[0], canvasCenter[1], radius, 0, Math.PI * 2);
+                this.ctx.stroke();
+                
+                // 绘制雷达扫描线
+                const sweepAngle = (this.animationTime * 0.01 + index * 1.2) % (Math.PI * 2);
+                this.ctx.strokeStyle = `rgba(255, 251, 31, ${alpha * 0.8})`;
+                this.ctx.lineWidth = 1;
+                this.ctx.setLineDash([]);
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(canvasCenter[0], canvasCenter[1]);
+                this.ctx.lineTo(
+                    canvasCenter[0] + Math.cos(sweepAngle) * radius,
+                    canvasCenter[1] + Math.sin(sweepAngle) * radius
+                );
+                this.ctx.stroke();
+                
+                // 绘制扫描点
+                const pointDistance = radius * 0.7;
+                const pointX = canvasCenter[0] + Math.cos(sweepAngle) * pointDistance;
+                const pointY = canvasCenter[1] + Math.sin(sweepAngle) * pointDistance;
+                
+                this.ctx.fillStyle = `rgba(255, 251, 31, ${alpha})`;
+                this.ctx.beginPath();
+                this.ctx.arc(pointX, pointY, 2, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+            
+            this.ctx.setLineDash([]);
+        });
+    }
+
     // 绘制所有对象
     drawObjects() {
         if (!dataManager.currentObjects || dataManager.currentObjects.length === 0) return;
+        
+        // 先绘制连线效果（在对象下方）
+        this.drawResourceConnections();
+        
+        // 然后绘制对象
         dataManager.currentObjects.forEach((obj, index) => this.drawObject(obj, index));
+        
+        // 最后绘制雷达圈（在对象上方）
+        this.drawAgentRadarRings();
     }
 
     // 完整重绘
     render() {
+        // 更新动画时间
+        this.animationTime = Date.now();
+        
         this.drawGridSystem();
         this.drawObjects();
     }

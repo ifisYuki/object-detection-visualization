@@ -2,8 +2,8 @@ import { OBJECT_TYPES, DEFAULT_OBJECT_TYPE, getObjectTypeConfig } from './object
 
 // 播放配置
 export const FRAME_CONFIG = {
-    START_FRAME: 590,
-    END_FRAME: 689,
+    START_FRAME: 1,      // 从第1帧开始
+    END_FRAME: 689,      // 到第689帧结束
     FRAME_RATE: 10 // frames per second
 };
 
